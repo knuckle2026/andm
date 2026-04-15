@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>恵比寿のゲイバー アンドエム</title>
+  <meta name="description" content="社畜リサイクルセンター。明日、また戦うための、自分メンテナンス。">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <style>
+    /* スムーススクロールのための設定 */
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // --- アイコンコンポーネント (lucide-reactの代わりにSVGを直接定義) ---
+    const Menu = ({ size = 24, className = "" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+    );
+    const X = ({ size = 24, className = "" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    );
+    const Clock = ({ size = 24, className = "" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    );
+    const Instagram = ({ size = 24, className = "" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+    );
+    const Star = ({ size = 24, className = "" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    );
+    const MapPin = ({ size = 24, className = "" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+    );
+    const Phone = ({ size = 24, className = "" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    );
+    const ExternalLink = ({ size = 24, className = "" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+    );
+
+    // --- メインアプリ ---
+    function App() {
+      const [isMenuOpen, setIsMenuOpen] = useState(false);
+      const [scrolled, setScrolled] = useState(false);
+
+      const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+      // スクロール時にナビゲーションバーのスタイルを変更
+      useEffect(() => {
+        document.title = "恵比寿のゲイバー アンドエム";
+        const handleScroll = () => {
+          setScrolled(window.scrollY > 50);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+      }, []);
+
+      // Linksをナビゲーションにも追加
+      const navLinks = [
+        { name: 'Top', href: '#top' },
+        { name: 'About Us', href: '#about' },
+        { name: 'Menu', href: '#menu' },
+        { name: 'Access', href: '#access' },
+        { name: 'Links', href: '#links' },
+      ];
+
+      // メニューデータ
+      const menuCategories = [
+        {
+          title: "SYSTEM",
+          items: [
+            { name: "セット代（割りものフリー）", price: "¥3,500" }
+          ]
+        },
+        {
+          title: "SHOT",
+          items: [
+            { name: "席チャージ", price: "¥1,300" },
+            { name: "1杯", price: "¥800~" }
+          ]
+        },
+        {
+          title: "BOTTLE (入れた日から3ヶ月キープ)",
+          items: [
+            { name: "鏡月プレミアム", price: "¥5,000" },
+            { name: "吉四六", price: "¥6,500" },
+            { name: "芋（時期により仕入れ変更）", price: "¥5,500" }
+          ]
+        },
+        {
+          title: "WHISKY (入れた日から6ヶ月キープ)",
+          items: [
+            { name: "山崎", price: "¥24,000" },
+            { name: "白州", price: "¥24,000" },
+            { name: "知多", price: "¥22,000" }
+          ]
+        }
+      ];
+
+      return (
+        <div className="min-h-screen bg-white text-gray-800 font-serif selection:bg-[#68B637]/30">
+          {/* Navigation Bar */}
+          <nav 
+            className={`fixed w-full z-50 transition-all duration-300 ${
+              scrolled ? 'bg-white/95 backdrop-blur-sm shadow-sm py-2' : 'bg-white py-4'
+            }`}
+          >
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-between items-center h-16">
+                {/* Logo Text (Left) */}
+                <div className="flex-shrink-0">
+                  <a href="#top" className="text-3xl font-bold tracking-widest text-[#1e293b]">
+                    ＆M
+                  </a>
+                </div>
+                
+                {/* Hamburger menu button (常に表示) */}
+                <div className="flex items-center">
+                  <button 
+                    onClick={toggleMenu} 
+                    className="text-[#1e293b] hover:text-[#68B637] focus:outline-none transition-colors"
+                    aria-label="Toggle menu"
+                    aria-expanded={isMenuOpen}
+                  >
+                    {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Menu Overlay (半透明＆文字色変更) */}
+            <div 
+              className={`absolute w-full bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-lg transition-all duration-300 overflow-hidden ${
+                isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+              }`}
+            >
+              <div className="px-4 pt-2 pb-6 space-y-2">
+                {/* ページ内リンク */}
+                {navLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block px-3 py-3 text-base uppercase tracking-widest text-center text-[#68B637] hover:bg-[#68B637]/10 font-medium rounded-md transition-colors"
+                  >
+                    {link.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </nav>
+
+          {/* Hero Section (Top) */}
+          <section id="top" className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto flex flex-col items-center justify-center min-h-screen">
+            <div className="w-full mb-16 relative animate-fade-in-up flex justify-center">
+               {/* 添付されたロゴ画像を使用（オリジナルサイズで中央表示） */}
+               <img 
+                 src="images/logo.jpg" 
+                 alt="アンドエム Logo" 
+                 className="mx-auto drop-shadow-sm hover:drop-shadow-md transition-shadow duration-500" 
+                 onError={(e) => {
+                   e.target.style.display = 'none';
+                   const fallback = e.target.nextElementSibling;
+                   if(fallback) fallback.style.display = 'flex';
+                 }}
+               />
+               {/* フォールバック用のテキストロゴ（画像が読み込めない時だけ表示） */}
+               <div className="hidden flex-col items-center justify-center py-20 border-2 border-dashed border-gray-300 rounded-lg w-full max-w-3xl">
+                 <span className="text-6xl font-bold text-gray-300 mb-4">＆M</span>
+                 <span className="text-sm text-gray-400">※ここにimages/logo.jpgが表示されます</span>
+               </div>
+            </div>
+            
+            <div className="text-center space-y-4">
+              <p className="text-sm md:text-base font-bold tracking-widest text-[#1e293b]">
+                社畜リサイクルセンター
+              </p>
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-light tracking-widest text-[#1e293b] leading-relaxed">
+                明日、また戦うための、<br className="md:hidden" />自分メンテナンス。
+              </h1>
+            </div>
+          </section>
+
+          {/* About Us Section */}
+          <section id="about" className="py-24">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+              <h2 className="text-2xl font-medium tracking-widest uppercase mb-16 text-[#1e293b] flex items-center justify-center">
+                <span className="w-8 h-px bg-[#68B637] mr-6"></span>
+                About Us
+                <span className="w-8 h-px bg-[#68B637] ml-6"></span>
+              </h2>
+
+              <div className="w-full max-w-2xl mx-auto mb-12 relative animate-fade-in-up">
+               <img
+                 src="images/inside.jpg"
+                 alt="アンドエム Inside"
+                 className="w-full h-auto drop-shadow-sm rounded-lg"
+                 onError={(e) => {
+                   e.target.style.display = 'none';
+                   const fallback = e.target.nextElementSibling;
+                   if(fallback) fallback.style.display = 'flex';
+                 }}
+               />
+               <div className="hidden flex-col items-center justify-center py-20 border-2 border-dashed border-gray-300 rounded-lg bg-white">
+                 <span className="text-gray-400">※ここにimages/inside.jpgが表示されます</span>
+               </div>
+            </div>
+              
+            <div className="space-y-8 text-gray-600 leading-loose text-base md:text-lg font-light text-center">
+              <p>
+                恵比寿の片隅にある小さなゲイバー。<br />
+                扉の向こうに待っているのは、気取らない自由な時間。<br />
+                ホンネに浸る夜もあれば、カオスにバグる夜も。
+              </p>
+              <p>
+                カウンター越しにお渡しするのは、<br />
+                役に立つかわからない経験値と、とりあえずの痛み止め。
+              </p>
+              <p className="pt-4 font-medium text-[#1e293b]">
+                さあ、今夜はどんな夜にしようか。
+              </p>
+            </div>
+          </div>
+        </section>
+
+          {/* Menu Section */}
+          <section id="menu" className="py-24">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+              <h2 className="text-2xl font-medium tracking-widest uppercase mb-16 text-center text-[#1e293b] flex items-center justify-center">
+                <span className="w-8 h-px bg-[#68B637] mr-6"></span>
+                Menu
+                <span className="w-8 h-px bg-[#68B637] ml-6"></span>
+              </h2>
+              
+              <div className="grid md:grid-cols-2 gap-8">
+                {menuCategories.map((category, index) => (
+                  <div key={index} className="bg-white p-6 md:p-8 shadow-sm border border-gray-100 rounded-sm">
+                    <h3 className="text-lg font-medium mb-6 text-center text-[#1e293b] tracking-widest border-b border-gray-200 pb-3">
+                      {category.title}
+                    </h3>
+                    <ul className="space-y-4">
+                      {category.items.map((item, itemIdx) => (
+                        <li key={itemIdx} className="flex justify-between items-end border-b border-dotted border-gray-300 pb-1">
+                          <span className="text-gray-800 text-sm md:text-base pr-4">{item.name}</span>
+                          <span className="text-gray-500 font-sans text-sm whitespace-nowrap">{item.price}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-16 text-center text-sm md:text-base text-gray-500 tracking-wide font-medium">
+                <p>※All ＋ tax</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Access Section */}
+          <section id="access" className="py-24">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+              <h2 className="text-2xl font-medium tracking-widest uppercase mb-16 text-center text-[#1e293b] flex items-center justify-center">
+                <span className="w-8 h-px bg-[#68B637] mr-6"></span>
+                Access
+                <span className="w-8 h-px bg-[#68B637] ml-6"></span>
+              </h2>
+
+              <div className="bg-white p-10 md:p-16 shadow-sm border border-gray-100 text-center rounded-sm">
+                <div className="flex flex-col space-y-8 max-w-sm mx-auto text-left">
+                  
+                  <div className="flex items-start space-x-5">
+                    <MapPin className="text-[#68B637] mt-1 flex-shrink-0" size={20} />
+                    <div>
+                      <h4 className="font-medium mb-1 text-sm tracking-widest uppercase text-gray-500">Address</h4>
+                      <p className="text-gray-800 leading-relaxed font-sans text-sm md:text-base">
+                        〒150-0022<br />
+                        東京都渋谷区恵比寿南2-3-3<br />
+                        松坂屋ストアB1
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-5">
+                    <Phone className="text-[#68B637] mt-1 flex-shrink-0" size={20} />
+                    <div>
+                      <h4 className="font-medium mb-1 text-sm tracking-widest uppercase text-gray-500">TEL</h4>
+                      <p className="text-gray-800 leading-relaxed font-sans text-sm md:text-base">
+                        03-3791-6150
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-5">
+                    <Clock className="text-[#68B637] mt-1 flex-shrink-0" size={20} />
+                    <div>
+                      <h4 className="font-medium mb-1 text-sm tracking-widest uppercase text-gray-500">Hours</h4>
+                      <p className="text-gray-800 leading-relaxed font-sans text-sm md:text-base">
+                        20:00 - 5:00<br />
+                        <span className="text-sm text-red-800/80 font-serif">定休日：日曜日</span>
+                      </p>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Links Section */}
+          <section id="links" className="py-24">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+              <h2 className="text-2xl font-medium tracking-widest uppercase mb-16 text-center text-[#1e293b] flex items-center justify-center">
+                <span className="w-8 h-px bg-[#68B637] mr-6"></span>
+                Links
+                <span className="w-8 h-px bg-[#68B637] ml-6"></span>
+              </h2>
+
+              <div className="flex justify-center">
+                <a
+                  href="https://877uranai.pages.dev/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative inline-flex items-center justify-center px-10 py-5 text-sm md:text-base font-medium tracking-widest text-gray-700 border border-gray-200 bg-white hover:border-[#68B637] hover:text-[#68B637] transition-all duration-300 shadow-sm hover:shadow-md rounded-sm"
+                >
+                  開運バナナ占い
+                  <ExternalLink className="w-4 h-4 ml-3 opacity-60 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                </a>
+              </div>
+            </div>
+          </section>
+
+          {/* Footer */}
+          <footer className="bg-[#68B637] text-white py-12 text-center">
+            <div className="flex justify-center items-center space-x-8 mb-8">
+              <a href="#" className="text-white hover:text-gray-200 transition-colors"><Instagram size={20} /></a>
+              <a href="#" className="text-white hover:text-gray-200 transition-colors"><Star size={20} /></a>
+            </div>
+            <div className="text-2xl font-bold tracking-widest text-white/90 mb-4">＆M</div>
+            <p className="text-xs tracking-widest uppercase font-light text-white/80">
+              &copy; {new Date().getFullYear()} アンドエム. All rights reserved.
+            </p>
+          </footer>
+        </div>
+      );
+    }
+
+    // Reactアプリの起動
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
